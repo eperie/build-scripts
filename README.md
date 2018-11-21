@@ -1,2 +1,4 @@
 # build-scripts
-bash scripts for compiling/cross compiling tools.
+Bash scripts for compiling/cross compiling tools.
+The 'binaries' directory does contained build artifacts for convenience.
+
