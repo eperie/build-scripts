@@ -39,7 +39,7 @@ do_install_zlib
 do_install_libusb
 git clone https://github.com/linux-sunxi/sunxi-tools.git
 pushd sunxi-tools
-make CC=x86_64-w64-mingw32-gcc  OS="Windows_NT" LIBUSB_CFLAGS="-I${PREFIX}/include/libusb-1.0 -I${PREFIX}/include" LIBUSB_LIBS="-L${PREFIX}/lib -lusb-1.0 -lz -pthread" clean sunxi-fel
+make CC=x86_64-w64-mingw32-gcc  OS="Windows_NT" LIBUSB_CFLAGS="-static -I${PREFIX}/include/libusb-1.0 -I${PREFIX}/include" LIBUSB_LIBS="-L${PREFIX}/lib -lusb-1.0 -lz -pthread" clean sunxi-fel
 cp sunxi-fel sunxi-fel.exe
 popd
 
