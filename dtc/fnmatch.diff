@@ -1,0 +1,52 @@
+diff --git a/convert-dtsv0-lexer.l b/convert-dtsv0-lexer.l
+index d6d68cd..9388966 100644
+--- a/convert-dtsv0-lexer.l
++++ b/convert-dtsv0-lexer.l
+@@ -38,7 +38,12 @@ GAP		({WS}|{COMMENT}|{LINECOMMENT})*
+ 
+ #include <errno.h>
+ #include <assert.h>
++#if  !defined (__MINGW32__) && !defined(__MINGW64__)
+ #include <fnmatch.h>
++#else
++#include <shlwapi.h>
++#define fnmatch(x, y, z) (!PathMatchSpec(y, x))
++#endif
+ 
+ #include "srcpos.h"
+ #include "util.h"
+diff --git a/fdtdump.c b/fdtdump.c
+index 289fff6..2ce92ef 100644
+--- a/fdtdump.c
++++ b/fdtdump.c
+@@ -9,6 +9,7 @@
+ #include <string.h>
+ #include <ctype.h>
+ #include <inttypes.h>
++#include <stdint.h>
+ 
+ #include <libfdt.h>
+ #include <libfdt_env.h>
+@@ -20,7 +21,7 @@
+ #define MAX_VERSION 17
+ 
+ #define ALIGN(x, a)	(((x) + ((a) - 1)) & ~((a) - 1))
+-#define PALIGN(p, a)	((void *)(ALIGN((unsigned long)(p), (a))))
++#define PALIGN(p, a)	((void *)(ALIGN((uintptr_t)(p), (a))))
+ #define GET_CELL(p)	(p += 4, *((const fdt32_t *)(p-4)))
+ 
+ static const char *tagname(uint32_t tag)
+diff --git a/fstree.c b/fstree.c
+index ae7d06c..80da0db 100644
+--- a/fstree.c
++++ b/fstree.c
+@@ -22,6 +22,9 @@
+ 
+ #include <dirent.h>
+ #include <sys/stat.h>
++#if  defined (__MINGW32__) || defined(__MINGW64__)
++#include "mingw-compat.h"
++#endif
+ 
+ static struct node *read_fstree(const char *dirname)
+ {
