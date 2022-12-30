@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2017-2022, Éric Périé
 # 
 #  SPDX-License-Identifier: BSD-3-Clause
@@ -99,9 +100,9 @@ do_build_sunxi_tools()
 
 do_package_sunxi_tools()
 {
+  local REVISION=$(git log -n1 --pretty='%h')
   mkdir -p ${BUILD_DIR}/sunxi-tools-mingw64-${REVISION}
   pushd  ${BUILD_DIR}/sunxi-tools
-  REVISION=$(git log -n1 --pretty='%h')
   for FILE in *.exe 
   do
     x86_64-w64-mingw32-strip ${FILE}
