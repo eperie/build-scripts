@@ -30,6 +30,8 @@ ZLIB_VERSION=1.2.13
 ZLIB_ARCHIVE=zlib-${ZLIB_VERSION}.tar.gz
 ZLIB_URL=http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz
 
+REVISION=""
+
 do_clean()
 {
   rm -rf ${BUILD_DIR} ${SYSROOT_DIR}
@@ -87,6 +89,11 @@ do_build_libusb()
   popd
 }
 
+do_get_revision()
+{
+  REVISION=$(git -C ${BUILD_DIR}/sunxi-tools log -n1 --pretty='%h')
+}
+
 do_get_sunxi_tools()
 {
   rm -rf ${BUILD_DIR}/sunxi-tools
@@ -100,7 +107,6 @@ do_build_sunxi_tools()
 
 do_package_sunxi_tools()
 {
-  local REVISION=$(git log -n1 --pretty='%h')
   mkdir -p ${BUILD_DIR}/sunxi-tools-mingw64-${REVISION}
   pushd  ${BUILD_DIR}/sunxi-tools
   for FILE in *.exe 
@@ -138,6 +144,7 @@ do_build_libusb
 
 # sunxi-tools
 do_get_sunxi_tools
+do_get_revision
 do_build_sunxi_tools
 do_package_sunxi_tools
 
