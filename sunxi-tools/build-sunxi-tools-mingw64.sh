@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2021, Éric Périé
+# Copyright (c) 2017-2022, Éric Périé
 # 
 #  SPDX-License-Identifier: BSD-3-Clause
 # 
@@ -20,12 +20,12 @@ PACKAGES_DIR=${SCRIPTPATH}/packages
 BUILD_DIR=${SCRIPTPATH}/build
 SYSROOT_DIR=${SCRIPTPATH}/sysroot
 
-LIBUSB_VERSION=1.0.24
+LIBUSB_VERSION=1.0.26
 LIBUSB_ARCHIVE=libusb-${LIBUSB_VERSION}.tar.bz2
 LIBUSB_URL=https://github.com/libusb/libusb/releases/download/v${LIBUSB_VERSION}/${LIBUSB_ARCHIVE}
 LIBUSB_HOME=${SCRIPTPATH}/sysroot
 
-ZLIB_VERSION=1.2.11
+ZLIB_VERSION=1.2.13
 ZLIB_ARCHIVE=zlib-${ZLIB_VERSION}.tar.gz
 ZLIB_URL=http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz
 
@@ -56,7 +56,7 @@ do_extract_zlib()
 do_build_zlib()
 {
   pushd  ${BUILD_DIR}/zlib-${ZLIB_VERSION}
-  CC=x86_64-w64-mingw32-gcc ./configure --static  --prefix=/home/user/git/sunxi-tools-mingw64/sysroot/
+  CC=x86_64-w64-mingw32-gcc ./configure --static  --prefix=${SYSROOT_DIR}
   make all install
   popd
 }
@@ -94,19 +94,24 @@ do_get_sunxi_tools()
 
 do_build_sunxi_tools()
 {
-  make -C ${BUILD_DIR}/sunxi-tools PREFIX=${BUILD_DIR}/sunxi-tools-mingw64 CC=x86_64-w64-mingw32-gcc ZLIB_CFLAGS="-static -I${SYSROOT_DIR}/include" ZLIB_LIBS="-L${SYSROOT_DIR}/lib -lz"  OS="Windows_NT" LIBUSB_CFLAGS="-I${SYSROOT_DIR}/include/libusb-1.0" LIBUSB_LIBS="-L${SYSROOT_DIR}/lib -lusb-1.0 -pthread" 
+  make -C ${BUILD_DIR}/sunxi-tools PREFIX=${BUILD_DIR}/sunxi-tools-mingw64 CC=x86_64-w64-mingw32-gcc ZLIB_CFLAGS="-static -I${SYSROOT_DIR}/include" ZLIB_LIBS="-L${SYSROOT_DIR}/lib -lz"  OS="Windows_NT" LIBUSB_CFLAGS="-I${SYSROOT_DIR}/include/libusb-1.0" LIBUSB_LIBS="-L${SYSROOT_DIR}/lib -lusb-1.0 -pthread"
 }
 
 do_package_sunxi_tools()
 {
-  for file in *.exe 
+  mkdir -p ${BUILD_DIR}/sunxi-tools-mingw64-${REVISION}
+  pushd  ${BUILD_DIR}/sunxi-tools
+  REVISION=$(git log -n1 --pretty='%h')
+  for FILE in *.exe 
   do
-    cp ${BUILD_DIR}/sunxi-tools-mingw64/bin/${file} ${BUILD_DIR}/sunxi-tools-mingw64/bin/${file}.exe
-    x86_64-w64-mingw32-strip ${BUILD_DIR}/sunxi-tools-mingw64/bin/${file}.exe    
+    x86_64-w64-mingw32-strip ${FILE}
+    cp ${BUILD_DIR}/sunxi-tools/${FILE} ${BUILD_DIR}/sunxi-tools-mingw64-${REVISION}
   done
- 
-  pushd  ${BUILD_DIR}/sunxi-tools-mingw64/bin
-  zip ${PACKAGES_DIR}/sunxi-tools-mingw64.zip *.exe
+
+  pushd ${BUILD_DIR}
+  zip -r ${SCRIPTPATH}/sunxi-tools-mingw64-${REVISION}.zip sunxi-tools-mingw64-${REVISION}
+  popd
+
   popd
 }
 
@@ -116,7 +121,7 @@ do_package_sunxi_tools()
 # main
 
 # cleanup
-do_distclean
+#do_distclean
 
 mkdir -p ${BUILD_DIR} 
 
